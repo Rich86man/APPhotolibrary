@@ -15,7 +15,7 @@
     if (self.thumbnail)
     {
         return [UIImage imageWithCGImage:self.thumbnail scale:UIScreen.mainScreen.scale
-                                                  orientation:UIImageOrientationUp];
+                             orientation:UIImageOrientationUp];
     }
     return nil;
 }
@@ -36,21 +36,23 @@
                isFullResolution:(BOOL)isFullResolution
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^
-    {
-        ALAssetRepresentation *representation = self.defaultRepresentation;
-        CGImageRef cgImage = isFullResolution ? representation.fullResolutionImage :
-                             representation.fullScreenImage;
-        UIImage *image = nil;
-        if (cgImage)
-        {
-            image = [UIImage imageWithCGImage:cgImage scale:UIScreen.mainScreen.scale
-                                  orientation:UIImageOrientationUp];
-        }
-        dispatch_async(dispatch_get_main_queue(), ^
-        {
-            callbackBlock ? callbackBlock(image) : nil;
-        });
-    });
+                   {
+                       ALAssetRepresentation *representation = self.defaultRepresentation;
+                       CGImageRef cgImage = isFullResolution ? representation.fullResolutionImage :
+                       representation.fullScreenImage;
+                       
+                       UIImage *image = nil;
+                       if (cgImage)
+                       {
+                           ALAssetOrientation orientation = [representation orientation];
+                           image = [UIImage imageWithCGImage:cgImage scale:UIScreen.mainScreen.scale
+                                                 orientation:orientation];
+                       }
+                       dispatch_async(dispatch_get_main_queue(), ^
+                                      {
+                                          callbackBlock ? callbackBlock(image) : nil;
+                                      });
+                   });
 }
 
 @end
